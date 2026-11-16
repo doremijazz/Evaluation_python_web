@@ -23,4 +23,9 @@ class User(AbstractUser):
         return availability
 
 
+class Skill(models.Model):
+    name = models.CharField(max_length=255)
+    category = models.CharField(max_length=255)
 
+    def belongs(self,category):
+        return self.category.lower() == category.lower()
