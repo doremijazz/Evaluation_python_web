@@ -29,3 +29,22 @@ class Skill(models.Model):
 
     def belongs(self,category):
         return self.category.lower() == category.lower()
+
+class Request(models.Model):
+    user = models.ForeignKey(User)
+    skill = models.ForeignKey(Skill)
+    time_slots = models.ManyToManyField('TimeSlot')
+    status = models.CharField(max_length=20, choices=["En Attente", "Acceptée"], default="En Attente")
+
+    def approve(self):
+        if self.status != "En Attente":
+            return False
+        else:
+            self.status = "Acceptée"
+            self.save(update_fields=["status"])
+            return True
+
+    def __str__(self):
+        return (f"Damnde {self.pk}, demandé par {self.user.username}, pour {self.skill} \n Quand ? : {self.time_slots} \n Status: {self.status}")
+
+    
