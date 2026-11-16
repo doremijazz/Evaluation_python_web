@@ -47,4 +47,11 @@ class Request(models.Model):
     def __str__(self):
         return (f"Damnde {self.pk}, demandé par {self.user.username}, pour {self.skill} \n Quand ? : {self.time_slots} \n Status: {self.status}")
 
+class Availability(models.Model):
+    user = models.ForeignKey(User)
+    time_slots = models.ManyToManyField('TimeSlot')
+    def is_available(self, time_slot):
+        return self.time_slots.filter(time_slot=time_slot).exists()
     
+    def __str__(self):
+        return self.time_slots
