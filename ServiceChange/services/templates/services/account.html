@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% block title %}My amazing blog{% endblock %}
+{% extends "services/base.html" %}
 
 {% block main %}
 <h1>Mon profil</h1>
@@ -10,7 +8,4 @@
 <p>Prénom : {{user.first_name}}</p>
 <p>E-mail : {{user.email}}</p>
 
-<form action="{% url 'service:change_password' %}" method="get">
-    <button type="submit">Changer le mot de passe</button>
-</form>
 {% endblock %}
