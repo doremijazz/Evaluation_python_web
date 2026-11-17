@@ -17,4 +17,7 @@ urlpatterns = [
 
     # URL du formulaire de dmande
     path("request/", views.do_request, name="request"),
+
+    # URL de déclaration de créneaux disponible
+    path("availability/", views.is_available, name="availability"),
 ]
