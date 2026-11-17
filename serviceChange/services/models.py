@@ -37,6 +37,7 @@ class Request(models.Model):
     time_slots = models.ManyToManyField('TimeSlot', related_name="requests")
     status = models.CharField(max_length=20,
                               choices=[("En attente", en_attente), ("aceptée", "Acceptée")], default=en_attente)
+    description = models.TextField()
 
     def approve(self):
         if self.status != self.en_attente:
