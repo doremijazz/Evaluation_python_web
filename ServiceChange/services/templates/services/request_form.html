@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% extends "services/base.html" %}
+{% block title %}My amazing blog{% endblock %}
+<body>
+{% block main %}
+    <h1>Ajouter une question</h1>
+
+    <form method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+        {{ slot_form.manage_form}}
+        {% for slot in slot_form %}
+        <fieldset>
+            <legend>Créneau {{ forloop.counter }}</legend>
+
+            {{ slot.as_p }}
+        </fieldset>
+        </p>
+        {% endfor %}
+         <button type="submit" class="enregistrer">Enregistrer</button>
+    </form>
+{% endblock %}
+</body>
+</html>
