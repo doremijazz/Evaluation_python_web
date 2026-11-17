@@ -1,12 +1,13 @@
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import PasswordChangeView
+from django.db import transaction
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import InscriptionForm, RequestForm
-from .models import User
+from .forms import InscriptionForm, RequestForm, SlotForm, SlotFormSet
+from .models import User, TimeSlot
 
 
 def connexion(request):
@@ -58,13 +59,32 @@ class ChangePasswordView(PasswordChangeView):
 def do_request(request):
     if request.method == "POST":
         form = RequestForm(request.POST)
+        slot_form = SlotFormSet(request.POST)
 
-        if form.is_valid():
-            request_data = form.save(commit=False)
-            request_data.user = request.user
-            request_data.status = "En attente"
-            request_data.save()
+        if form.is_valid() and slot_form.is_valid():
+            with transaction.atomic():
+                request_data = form.save(commit=False)
+                request_data.user = request.user
+                request_data.status = "En attente"
+                request_data.save()
+
+                for slot in slot_form:
+                    if slot.cleaned_data:
+                        time_slot = slot.save(commit=False)
+                        time_slot.save()
+                        request_data.time_slots.add(time_slot)
+
             return redirect("services:index")
-        else:
-            form = RequestForm()
-            return render(request, "services/request_form.html", {"form": form})
+
+    else:
+        form = RequestForm()
+        slot_form = SlotFormSet()
+
+    return render(
+        request,
+        "services/request_form.html",
+        {
+            "form": form,
+            "slot_form": slot_form
+        }
+    )
