@@ -14,4 +14,7 @@ urlpatterns = [
 
     # URL de lapage de changment de mot de passe
     path("password/", views.ChangePasswordView.as_view(), name="change_password"),
+
+    # URL du formulaire de dmande
+    path("request/", views.do_request, name="request"),
 ]
