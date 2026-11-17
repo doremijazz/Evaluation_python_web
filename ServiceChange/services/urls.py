@@ -8,5 +8,10 @@ urlpatterns = [
     path("connexion/", views.connexion, name="connexion"),
     path("inscription/", views.register, name="inscription"),
     path("deconnexion/", views.deconnexion, name="deconnexion"),
-    # bbbbb
-    ]
+
+    # URL du profil
+    path("account/<int:pk>/", views.UserView.as_view(), name="account"),
+
+    # URL de lapage de changment de mot de passe
+    path("password/", views.ChangePasswordView.as_view(), name="change_password"),
+]
