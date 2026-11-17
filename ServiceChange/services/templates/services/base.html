@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'services/style.css' %}">
+    <title>{% block title %}Site de sondages{% endblock %}</title>
+</head>
+
+<body>
+    <header>
+        {% block header %}
+        {% if user.is_authenticated %}
+
+            <a href="{% url 'services:account' user.id %}" class="identifiant">Bonjour {{ user.Username }}</a>
+
+                <a href="{% url 'services:deconnexion' %}" class="deconnexion">Déconexion</a>
+
+        {% else %}
+            {% if request.resolver_match.url_name != "connexion" %}
+                <a href="{% url 'services:connexion' %}" class="connexion">Connexion</a>
+            {% endif %}
+            {% if request.resolver_match.url_name != "inscription" %}
+                <a href="{% url 'services:inscription' %}" class="inscription">Inscription</a>
+            {% endif %}
+        {% endif %}
+        <nav>
+            <a></a>
+            <a></a>
+        </nav>
+        {% endblock %}
+    </header>
+
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+</body>
+</html>
