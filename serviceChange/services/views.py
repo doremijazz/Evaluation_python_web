@@ -5,7 +5,7 @@ from django.urls import reverse_lazy
 from django.views import generic
 from django.contrib.auth.forms import PasswordChangeForm
 
-from .forms import InscriptionForm
+from .forms import InscriptionForm, RequestForm
 from .models import User
 
 
@@ -43,11 +43,28 @@ def register(request):
         {"form": form}
     )
 
+
 class UserView(generic.DetailView):
     model = User
     template_name = "services/account.html"
+
 
 class ChangePasswordView(PasswordChangeView):
     template_name = "services/change_password.html"
     form_class = PasswordChangeForm
     success_url = reverse_lazy("services:account")
+
+
+def do_request(request):
+    if request.method == "POST":
+        form = RequestForm(request.POST)
+
+        if form.is_valid():
+            request_data = form.save(commit=False)
+            request_data.user = request.user
+            request_data.status = "En attente"
+            request_data.save()
+            return redirect("services:index")
+        else:
+            form = RequestForm()
+            return render(request, "services/request_form.html", {"form": form})
