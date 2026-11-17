@@ -1,6 +1,9 @@
 from django.contrib.auth import logout, login, authenticate
 from django.shortcuts import render, redirect
+from django.views import generic
+
 from .forms import InscriptionForm
+from .models import User
 
 
 def connexion(request):
@@ -36,3 +39,7 @@ def register(request):
         "services/register.html",
         {"form": form}
     )
+
+class UserView(generic.DetailView):
+    model = User
+    template_name = "polls/account.html"
