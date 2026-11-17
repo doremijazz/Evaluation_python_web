@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="{% static 'services/style.css' %}">
+    <title>{% block title %}Site de sondages{% endblock %}</title>
+</head>
+
+<body>
+    <header>
+        {% block header %}
+        <nav>
+            <a></a>
+            <a></a>
+        </nav>
+    </header>
+
+    <main>
+        {% block main %}{% endblock %}
+    </main>
+</body>
+</html>
