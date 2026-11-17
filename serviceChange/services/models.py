@@ -1,13 +1,12 @@
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
-
 
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
 
-    skills = models.ManyToManyField('Skill', blank=True, ralated_name="users")
+    skills = models.ManyToManyField('Skill', blank=True, verbose_name="users")
 
     def enter_skill(self, skill):
         self.skills.add(skill)
@@ -27,17 +26,20 @@ class Skill(models.Model):
     name = models.CharField(max_length=255)
     category = models.CharField(max_length=255)
 
-    def belongs(self,category):
+    def belongs(self, category):
         return self.category.lower() == category.lower()
 
+
 class Request(models.Model):
-    user = models.ForeignKey(User)
-    skill = models.ForeignKey(Skill)
-    time_slots = models.ManyToManyField('TimeSlot')
-    status = models.CharField(max_length=20, choices=["En Attente", "Acceptée"], default="En Attente")
+    en_attente = "En Attente"
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="requests")
+    skill = models.ForeignKey("Skill", on_delete=models.PROTECT, related_name="requests")
+    time_slots = models.ManyToManyField('TimeSlot', related_name="requests")
+    status = models.CharField(max_length=20,
+                              choices=[("En attente", en_attente), ("aceptée", "Acceptée")], default=en_attente)
 
     def approve(self):
-        if self.status != "En Attente":
+        if self.status != self.en_attente:
             return False
         else:
             self.status = "Acceptée"
@@ -45,16 +47,28 @@ class Request(models.Model):
             return True
 
     def __str__(self):
-        return (f"Damnde {self.pk}, demandé par {self.user.username}, pour {self.skill} \n Quand ? : {self.time_slots} \n Status: {self.status}")
+        output = ""
+        if self.time_slots:
+            for t in self.time_slots.all():
+                output += ' | ' + str(t)
+        else:
+            "Aucun créneau"
+        to_print = ("Damnde" + self.pk + ", demandé par " + self.user.username + ", pour " + self.skill + " \n"
+                    + " Quand ? : " + output + " \n"
+                    + " Status: " + self.status)
+        return to_print
+
 
 class Availability(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="availability")
     time_slots = models.ManyToManyField('TimeSlot')
+
     def is_available(self, time_slot):
         return self.time_slots.filter(time_slot=time_slot).exists()
 
     def __str__(self):
         return self.time_slots
+
 
 class TimeSlot(models.Model):
     id = models.AutoField(primary_key=True)
@@ -63,5 +77,3 @@ class TimeSlot(models.Model):
 
     def belongs(self, start_time, end_time):
         return self.start_time <= start_time <= end_time <= self.end_time
-
-    
