@@ -1,6 +1,9 @@
 from django.contrib.auth import logout, login, authenticate
+from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import generic
+from django.contrib.auth.forms import PasswordChangeForm
 
 from .forms import InscriptionForm
 from .models import User
@@ -42,4 +45,9 @@ def register(request):
 
 class UserView(generic.DetailView):
     model = User
-    template_name = "polls/account.html"
+    template_name = "services/account.html"
+
+class ChangePasswordView(PasswordChangeView):
+    template_name = "services/change_password.html"
+    form_class = PasswordChangeForm
+    success_url = reverse_lazy("services:account")
