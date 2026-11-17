@@ -11,14 +11,14 @@ def connexion(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect("polls:index")
+            return redirect("services:index")
         erreur = "Identifiants incorrects."
-    return render(request, "polls/login.html", {"erreur": erreur})
+    return render(request, "services/login.html", {"erreur": erreur})
 
 
 def deconnexion(request):
     logout(request)
-    return redirect("polls:index")
+    return redirect("services:index")
 
 
 def register(request):
@@ -33,6 +33,6 @@ def register(request):
 
     return render(
         request,
-        "polls/register.html",
+        "services/register.html",
         {"form": form}
     )
