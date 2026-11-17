@@ -1,8 +1,9 @@
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from django.forms import ModelForm, Select, SplitHiddenDateTimeWidget, Textarea
+from django.forms import ModelForm, Select, SplitHiddenDateTimeWidget, Textarea, SplitDateTimeWidget, SplitDateTimeField, formset_factory, modelformset_factory, DateTimeInput
 
-from services.models import Request, Skill
+from services.models import Request, Skill, TimeSlot
+from django import forms
 
 
 class InscriptionForm(UserCreationForm):
@@ -10,17 +11,44 @@ class InscriptionForm(UserCreationForm):
         model = User
         fields = ["username", "email", "first_name", "last_name"]
 
+class SlotForm(ModelForm):
+    class Meta:
+        model = TimeSlot
+        fields = ["start_time", "end_time"]
+
+        widgets = {
+            "start_time": forms.DateTimeInput(
+                attrs={
+                    "type": "datetime-local",
+                    "class": "form-control",
+                    "step": "900"
+                },
+                format="%Y-%m-%dT%H:%M"
+            ),
+            "end_time": forms.DateTimeInput(
+                attrs={
+                    "type": "datetime-local",
+                    "class": "form-control",
+                    "step": "900"
+                },
+                format="%Y-%m-%dT%H:%M"
+            ),
+        }
 
 class RequestForm(ModelForm):
     template_name = "services/request_form.html"
 
     class Meta:
         model = Request
-        fields = ["skill", "time_slot", "description"]
-        choices = Skill.objects.all()
+        fields = ["skill", "description"]
         widgets = {
-            "skill": Select(attrs={"class": "form-control"}, choices=choices),
-            "time_slot": [SplitHiddenDateTimeWidget(attrs={"class": "form-control", "step": "11200"}),],
-            "descritption": Textarea(attrs={"class": "form-control"}),
+            "skill": Select(attrs={"class": "form-control"}),
+            "description": Textarea(attrs={"cols": 200, "rows": 5}),
         }
-        
+
+SlotFormSet = formset_factory(
+    SlotForm,
+    extra=5,
+    max_num=5,
+    validate_max=True
+)
