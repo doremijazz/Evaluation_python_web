@@ -1,3 +1,5 @@
+from typing import Optional
+
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import PasswordChangeView
 from django.db import transaction
@@ -7,7 +9,7 @@ from django.views import generic
 from django.contrib.auth.forms import PasswordChangeForm
 
 from .forms import InscriptionForm, RequestForm, SlotForm, SlotFormSet
-from .models import User, TimeSlot
+from .models import User, TimeSlot, Availability
 
 
 def connexion(request):
@@ -88,3 +90,23 @@ def do_request(request):
             "slot_form": slot_form
         }
     )
+
+def is_available(request):
+    if request.method == "POST":
+        form = SlotFormSet(request.POST)
+        if form.is_valid():
+            data : Optional[Availability] = None
+            data.user = request.user
+            data.skills = request.user.skills.all()
+
+            for solt in form:
+                if solt.cleaned_data:
+                    time_slot = solt.save(commit=False)
+                    time_slot.save()
+                    data.time_slots.add(time_slot)
+
+        return redirect("services:index")
+    else:
+        form = SlotFormSet()
+
+    return render(request, "services/availability.html", {"form": form})
