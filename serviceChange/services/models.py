@@ -52,6 +52,16 @@ class Availability(models.Model):
     time_slots = models.ManyToManyField('TimeSlot')
     def is_available(self, time_slot):
         return self.time_slots.filter(time_slot=time_slot).exists()
-    
+
     def __str__(self):
         return self.time_slots
+
+class TimeSlot(models.Model):
+    id = models.AutoField(primary_key=True)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def belongs(self, start_time, end_time):
+        return self.start_time <= start_time <= end_time <= self.end_time
+
+    
