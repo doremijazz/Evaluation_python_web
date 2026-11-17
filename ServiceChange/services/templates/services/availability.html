@@ -1,0 +1,15 @@
+<form method="post">
+        {% csrf_token %}
+
+
+        {{ form.manage_form}}
+        {% for slot in form %}
+        <fieldset>
+            <legend>Créneau {{ forloop.counter }}</legend>
+
+            {{ slot.as_p }}
+        </fieldset>
+        </p>
+        {% endfor %}
+         <button type="submit" class="enregistrer">Enregistrer</button>
+    </form>
