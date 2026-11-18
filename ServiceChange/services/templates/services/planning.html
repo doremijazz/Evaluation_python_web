@@ -46,33 +46,68 @@
                     return {domNodes: [container]};
                 },
 
-                eventClick: function (info) {
-                    const date = info.event.start.toLocaleDateString("fr-FR", {
-                        weekday: "long",
-                        day: "2-digit",
-                        month: "long",
-                        year: "numeric"
-                    });
+                 eventClick: function (info) {
+    const reservationId = info.event.extendedProps.reservationId;
 
-                    const start = info.event.start.toLocaleTimeString("fr-FR", {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    });
+    const date = info.event.start.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+    });
 
-                    const end = info.event.end?.toLocaleTimeString("fr-FR", {
-                        hour: "2-digit",
-                        minute: "2-digit"
-                    }) || "Non renseignée";
+    const start = info.event.start.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit"
+    });
 
-                    alert(
-                        "Réservation : " + info.event.title +
-                        "\nDate : " + date +
-                        "\nCréneaux : " + start + " - " + end +
-                        "\nUtilisateur : " +
-                        (info.event.extendedProps.username || "") + " / " +
-                        (info.event.extendedProps.email || "")
-                    );
+    const end = info.event.end?.toLocaleTimeString("fr-FR", {
+        hour: "2-digit",
+        minute: "2-digit"
+    }) || "Non renseignée";
+if (info.event.extendedProps.status === "En attente") {
+    const userConfirmed = confirm(
+        "Réservation : " + info.event.title +
+        "\nDate : " + date +
+        "\nCréneau : " + start + " - " + end +
+        "\nUtilisateur : " +
+        (info.event.extendedProps.username || "") + " / " +
+        (info.event.extendedProps.email || "") +
+        "\nStatut : " + (info.event.extendedProps.status || "") +
+        "\n\nVoulez-vous confirmer cette réservation ?"
+    );
+
+    if (userConfirmed) {
+        fetch("{% url 'services:confirm_action' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCSRFToken()
+            },
+            body: JSON.stringify({
+                reservation_id: reservationId
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Réservation confirmée !");
+
+                    info.event.setExtendedProp("status", "confirmed");
+                    calendar.refetchEvents();
+                } else {
+                    alert("Erreur : " + (data.error || "Confirmation impossible"));
                 }
+            })
+            .catch(error => {
+                console.error("Erreur réseau :", error);
+                alert("Erreur lors de la confirmation.");
+            });
+    }
+}else{
+    alert("Cette demande est déja pourvue")
+}
+}
             }
         );
 
