@@ -2,7 +2,8 @@
 
 {% block main %}
 <div class="message"><div class="acceuil"><h1>Bienvenue sur ServiceCahnge</h1><h1>Votre plateforme en ligne d'échange de service</h1></div></div>
-<div class="plannigTitle"><h1>Planning des réservations</h1></div>
+<div class="plannigTitle"><h1>Planning des demande compatible avec mes disponibilitées</h1></div>
+
 
 <div id="calendar"></div>
 
@@ -30,7 +31,15 @@
 
                 events: "{% url 'services:planning_events' %}",
 
-                eventContent: function (info) {
+                eventDataTransform: function(event) {
+                    if (event.extendedProps.matching === true) {
+                        return event;
+                    }
+
+                    return false;
+                },
+
+                eventContent: function(info) {
                     const container = document.createElement("div");
 
                     const title = document.createElement("strong");
