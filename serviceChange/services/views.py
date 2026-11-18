@@ -1,28 +1,26 @@
 import json
-from datetime import timedelta, datetime
 
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import AbstractUser
 from django.http import JsonResponse
-from django.utils import timezone
-from typing import Optional
 
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import PasswordChangeView
 from django.db import transaction
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.timezone import make_aware
 from django.views import generic
 from django.contrib.auth.forms import PasswordChangeForm
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 
-from .forms import InscriptionForm, RequestForm, SlotForm, SlotFormSet, WeekForm, SkillForm
-from .models import User, TimeSlot, Availability, Request, Skill
+from .forms import InscriptionForm, RequestForm, SlotFormSet, SkillForm
+from .models import User, Availability, Request, Skill
 
 
 def connexion(request):
+    """Affiche le formulaire de connexion et authentifie un utilisateur.
+
+    En cas de succès, ouvre la session et redirige vers l’accueil.
+    """
     erreur = None
     if request.method == "POST":
         username = request.POST.get("username", "")
@@ -36,11 +34,19 @@ def connexion(request):
 
 
 def deconnexion(request):
+    """Ferme la session de l’utilisateur courant.
+
+    Redirige ensuite vers la page d’accueil.
+    """
     logout(request)
     return redirect("services:index")
 
 
 def register(request):
+    """Affiche et traite le formulaire d’inscription.
+
+    Enregistre un nouvel utilisateur lorsque les données sont valides.
+    """
     if request.method == "POST":
         form = InscriptionForm(request.POST)
 
@@ -58,6 +64,10 @@ def register(request):
 
 
 class UserView(generic.DetailView):
+    """Affiche la page de détail d’un utilisateur.
+
+    Utilise la vue générique DetailView et le modèle User.
+    """
     model = User
     template_name = "services/account.html"
 
@@ -69,6 +79,10 @@ class ChangePasswordView(PasswordChangeView):
 
 
 def do_request(request):
+    """Crée une demande de service et ses créneaux horaires.
+
+    Valide les deux formulaires et enregistre les données dans une transaction.
+    """
     if request.method == "POST":
         form = RequestForm(request.POST)
         slot_form = SlotFormSet(request.POST)
@@ -121,7 +135,12 @@ def do_request(request):
         }
     )
 
+
 def is_available(request):
+    """Enregistre les disponibilités horaires de l’utilisateur.
+
+    Associe également ses compétences à la disponibilité créée.
+    """
     if request.method == "POST":
         form = SlotFormSet(request.POST)
         if form.is_valid():
@@ -143,18 +162,27 @@ def is_available(request):
 
     return render(request, "services/availability.html", {"form": form})
 
+
 def planning(request):
+    """Affiche la page HTML contenant le planning.
+
+    Les événements du calendrier sont fournis séparément par planning_events.
+    """
     return render(request, "services/planning.html")
 
 
-from django.http import JsonResponse
-
 def planning_events(request):
+    """Construit les événements du planning au format JSON.
+
+       Compare les demandes aux compétences et disponibilités de l’utilisateur connecté.
+       """
+    # Récupère les demandes et les disponibilités de la base de données.
     reservations = Request.objects.all()
     availabilitys = Availability.objects.all()
 
     events = []
 
+    # Une demande peut produire plusieurs événements, un par créneau.
     for reservation in reservations:
         for slot in reservation.time_slots.all():
 
@@ -162,20 +190,25 @@ def planning_events(request):
 
             if request.user.is_authenticated:
 
-                autre_utilisateur = reservation.user_id != request.user.id
+                # Une personne ne peut pas répondre à sa propre demande.
+                autre_utilisateur = reservation.user.id != request.user.id
 
+                # Vérifie que l’utilisateur possède la compétence demandée.
                 competence = request.user.skills.filter(
-                    pk=reservation.skill_id
+                    pk=reservation.skill.pk
                 ).exists()
 
+                # Cherche une disponibilité couvrant intégralement le créneau.
                 disponibilite = Availability.objects.filter(
                     user=request.user,
                     time_slots__start_time__lte=slot.start_time,
                     time_slots__end_time__gte=slot.end_time
                 ).exists()
 
+                # Seules les demandes en attente sont compatibles.
                 en_attente = reservation.status == "En attente"
 
+                # Le matching exige que toutes les conditions soient remplies.
                 matching = (
                         autre_utilisateur
                         and competence
@@ -195,6 +228,7 @@ def planning_events(request):
             else:
                 matching = False
 
+            # Détermine la couleur affichée dans FullCalendar.
             if reservation.status != "En attente":
                 color = "#FF0000"  # Rouge : demande traitée
                 text_color = "white"
@@ -207,6 +241,7 @@ def planning_events(request):
                 color = "#FD3F92"  # Rose : autre demande
                 text_color = "white"
 
+            # Prépare les propriétés attendues par FullCalendar.
             events.append({
                 "title": reservation.skill.name,
                 "start": slot.start_time.isoformat(),
@@ -226,9 +261,10 @@ def planning_events(request):
                 },
             })
 
+    # Ajoute au calendrier les disponibilités des autres utilisateurs.
     for availability in availabilitys:
         for slot in availability.time_slots.all():
-            autre_utilisateur = availability.user_id != request.user.id
+            autre_utilisateur = availability.user.id != request.user.id
             if autre_utilisateur:
                 events.append({
                     "title": availability.user.username,
@@ -257,9 +293,14 @@ class IndexView(generic.ListView):
     template_name = "services/index.html"
     context_object_name = "reservations"
 
+
 @login_required
 @require_POST
 def confirm_action(request):
+    """Confirme une demande à partir de données JSON reçues en POST.
+
+    Réserve cette action aux utilisateurs connectés ayant le statut staff.
+    """
     try:
         data = json.loads(request.body)
     except (json.JSONDecodeError, UnicodeDecodeError):
@@ -286,8 +327,13 @@ def confirm_action(request):
 
     return JsonResponse({"success": True})
 
+
 @login_required
 def select_skills(request):
+    """Permet à un utilisateur connecté de sélectionner ses compétences.
+
+    Ajoute les compétences choisies à son profil.
+    """
     if request.method == "POST":
         form = SkillForm(request.POST)
 
@@ -308,9 +354,15 @@ def select_skills(request):
         {"form": form}
     )
 
+
 def list_skills(request):
+    """Affiche toutes les compétences classées par catégorie et par nom.
+
+    Transmet la liste au template services/skills.html.
+    """
     skills = Skill.objects.all().order_by("category", "name")
 
     return render(request, "services/skills.html", {
         "skills": skills
-    })
+    }
+                  )
