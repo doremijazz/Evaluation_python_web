@@ -7,13 +7,16 @@
 {% regroup skills by category as categories %}
 
 {% for category in categories %}
-    <h2>{{ category.grouper }}</h2>
+    <div class="category_div">
+    <h2 class="category_name">{{ category.grouper }}</h2>
 
     {% for skill in category.list %}
-        <p>{{ skill.name }}</p>
+        <p class="skill_name">{{ skill.name }}</p>
     {% endfor %}
+        </div>
 {% empty %}
     <p>Aucune compétence disponible.</p>
+
 {% endfor %}
 
-{% endblock %}}
+{% endblock %}
