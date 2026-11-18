@@ -1,7 +1,7 @@
 from random import choice
 
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+from .models import User
 from django.forms import ModelForm, Select, SplitHiddenDateTimeWidget, Textarea, SplitDateTimeWidget, \
     SplitDateTimeField, formset_factory, modelformset_factory, DateTimeInput, CheckboxInput
 
