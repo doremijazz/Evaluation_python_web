@@ -1,0 +1,19 @@
+{% extends "services/base.html" %}
+
+{% block main %}
+
+<h1>Compétences</h1>
+
+{% regroup skills by category as categories %}
+
+{% for category in categories %}
+    <h2>{{ category.grouper }}</h2>
+
+    {% for skill in category.list %}
+        <p>{{ skill.name }}</p>
+    {% endfor %}
+{% empty %}
+    <p>Aucune compétence disponible.</p>
+{% endfor %}
+
+{% endblock %}}
