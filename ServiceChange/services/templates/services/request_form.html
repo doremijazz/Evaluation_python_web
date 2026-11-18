@@ -8,7 +8,7 @@
         {% csrf_token %}
 
         {{ form.as_p }}
-        {{ slot_form.manage_form}}
+        {{ slot_form.management_form }}
         {% for slot in slot_form %}
         <fieldset>
             <legend>Créneau {{ forloop.counter }}</legend>
