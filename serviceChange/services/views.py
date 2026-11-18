@@ -228,24 +228,26 @@ def planning_events(request):
 
     for availability in availabilitys:
         for slot in availability.time_slots.all():
-            events.append({
-                "title": availability.user.username,
-                "start": slot.start_time.isoformat(),
-                "end": slot.end_time.isoformat(),
-                "backgroundColor": "#25FDE9",
-                "borderColor": "#25FDE9",
-                "textColor": "black",
-                "extendedProps": {
-                    "type": "availability",
-                    "username": availability.user.username,
-                    "email": availability.user.email,
-                    "skills": list(
-                        availability.skills.values_list(
-                            "name", flat=True
-                        )
-                    ),
-                },
-            })
+            autre_utilisateur = availability.user_id != request.user.id
+            if autre_utilisateur:
+                events.append({
+                    "title": availability.user.username,
+                    "start": slot.start_time.isoformat(),
+                    "end": slot.end_time.isoformat(),
+                    "backgroundColor": "#25FDE9",
+                    "borderColor": "#25FDE9",
+                    "textColor": "black",
+                    "extendedProps": {
+                        "type": "availability",
+                        "username": availability.user.username,
+                        "email": availability.user.email,
+                        "skills": list(
+                            availability.skills.values_list(
+                                "name", flat=True
+                            )
+                        ),
+                    },
+                })
 
     return JsonResponse(events, safe=False)
 
