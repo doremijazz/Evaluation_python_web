@@ -86,3 +86,77 @@ fieldset{
 .calendar-filters button:hover {
     background: #cbd5e1;
 }
+
+.legende {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin: 20px 0;
+}
+
+.legende > div {
+    padding: 8px 18px;
+    border-radius: 6px;
+}
+
+.legende p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.Pourvu {
+    background-color: #FF0000;
+    color: white;
+}
+
+.EnAttente {
+    background-color: #FD3F92;
+    color: white;
+}
+
+.Compatible {
+    background-color: #87E990;
+    color: black;
+}
+
+.Disponible {
+    background-color: #25FDE9;
+    color: black;
+}
+
+.calendar-filters{
+    background: darkblue;
+    height: 40px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+.calendar-filters button {
+    padding: 10px 18px;
+    margin: 10px;
+
+}
+
+h1{
+    text-align: center;
+}
+
+.calendar-filters p{
+    color: white;
+}
+
+.skill_name, .category_name{
+    text-align: center;
+}
+
+.category_div {
+    margin: 0 auto 25px auto;
+    padding: 20px;
+    background: #e5e7eb;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+}
