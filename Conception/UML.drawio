@@ -252,7 +252,7 @@
     </mxGraphModel>
   </diagram>
   <diagram id="WvcyobB1jW6pxhvdFViR" name="Page-2">
-    <mxGraphModel dx="1030" dy="722" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+    <mxGraphModel dx="1414" dy="841" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -279,16 +279,16 @@
           <mxGeometry height="72" width="240" y="144" as="geometry" />
         </mxCell>
         <mxCell id="Npl1y_T6CG1JDt6AlyEK-5" parent="1" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;whiteSpace=wrap;html=1;" value="Request" vertex="1">
-          <mxGeometry height="122" width="160" x="650" y="398" as="geometry" />
+          <mxGeometry height="143" width="160" x="650" y="398" as="geometry" />
         </mxCell>
-        <mxCell id="Npl1y_T6CG1JDt6AlyEK-6" parent="Npl1y_T6CG1JDt6AlyEK-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="- id : int&lt;div&gt;- skill : Skill&lt;/div&gt;&lt;div&gt;- time_slot : list&amp;lt;TimeSlot&amp;gt;&lt;/div&gt;&lt;div&gt;- user : User&lt;/div&gt;" vertex="1">
-          <mxGeometry height="62" width="160" y="26" as="geometry" />
+        <mxCell id="Npl1y_T6CG1JDt6AlyEK-6" parent="Npl1y_T6CG1JDt6AlyEK-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="- id : int&lt;div&gt;- skill : Skill&lt;/div&gt;&lt;div&gt;- time_slot : list&amp;lt;TimeSlot&amp;gt;&lt;/div&gt;&lt;div&gt;- user : User&lt;/div&gt;&lt;div&gt;- description : string&lt;/div&gt;" vertex="1">
+          <mxGeometry height="83" width="160" y="26" as="geometry" />
         </mxCell>
         <mxCell id="Npl1y_T6CG1JDt6AlyEK-7" parent="Npl1y_T6CG1JDt6AlyEK-5" style="line;strokeWidth=1;fillColor=none;align=left;verticalAlign=middle;spacingTop=-1;spacingLeft=3;spacingRight=3;rotatable=0;labelPosition=right;points=[];portConstraint=eastwest;strokeColor=inherit;" value="" vertex="1">
-          <mxGeometry height="8" width="160" y="88" as="geometry" />
+          <mxGeometry height="8" width="160" y="109" as="geometry" />
         </mxCell>
         <mxCell id="Npl1y_T6CG1JDt6AlyEK-8" parent="Npl1y_T6CG1JDt6AlyEK-5" style="text;strokeColor=none;fillColor=none;align=left;verticalAlign=top;spacingLeft=4;spacingRight=4;overflow=hidden;rotatable=0;points=[[0,0.5],[1,0.5]];portConstraint=eastwest;whiteSpace=wrap;html=1;" value="+ approve() : bool" vertex="1">
-          <mxGeometry height="26" width="160" y="96" as="geometry" />
+          <mxGeometry height="26" width="160" y="117" as="geometry" />
         </mxCell>
         <mxCell id="Npl1y_T6CG1JDt6AlyEK-56" edge="1" parent="1" source="Npl1y_T6CG1JDt6AlyEK-9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=none;endFill=0;" target="Npl1y_T6CG1JDt6AlyEK-54">
           <mxGeometry relative="1" as="geometry" />
@@ -409,7 +409,7 @@
           <mxGeometry height="30" width="60" x="250" y="585" as="geometry" />
         </mxCell>
         <mxCell id="Npl1y_T6CG1JDt6AlyEK-49" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="0..n" vertex="1">
-          <mxGeometry height="30" width="60" x="720" y="520" as="geometry" />
+          <mxGeometry height="30" width="60" x="720" y="541" as="geometry" />
         </mxCell>
         <mxCell id="Npl1y_T6CG1JDt6AlyEK-50" parent="1" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" value="1..n" vertex="1">
           <mxGeometry height="30" width="60" x="470" y="585" as="geometry" />
