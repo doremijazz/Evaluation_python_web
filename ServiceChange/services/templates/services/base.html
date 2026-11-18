@@ -1,15 +1,23 @@
-<!DOCTYPE html>
-<html lang="fr">
 {% load static %}
+
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="{% static 'services/style.css' %}">
-    <title>{% block title %}Site de sondages{% endblock %}</title>
+    <title>{% block title %}{% endblock %}</title>
 </head>
 
 <body>
     <header>
         {% block header %}
+        <nav>
+
+            <a href="{% url 'services:index' %}">Acceuil</a>
+            <a href="{% url 'services:request' %}">Demander</a>
+            <a href="{% url 'services:availability' %}">Proposer</a>
+            <a href="{% url 'services:planning' %}">Planning</a>
+            <a>Services</a>
+
         {% if user.is_authenticated %}
 
             <a href="{% url 'services:account' user.id %}" class="identifiant">Bonjour {{ user.Username }}</a>
@@ -24,9 +32,6 @@
                 <a href="{% url 'services:inscription' %}" class="inscription">Inscription</a>
             {% endif %}
         {% endif %}
-        <nav>
-            <a></a>
-            <a></a>
         </nav>
         {% endblock %}
     </header>
@@ -35,4 +40,3 @@
         {% block main %}{% endblock %}
     </main>
 </body>
-</html>
