@@ -67,3 +67,22 @@ header a:hover {
 fieldset{
     margin: 15px;
 }
+
+.calendar-filters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.calendar-filters button {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 5px;
+    background: #e5e7eb;
+    cursor: pointer;
+}
+
+.calendar-filters button:hover {
+    background: #cbd5e1;
+}
