@@ -30,4 +30,6 @@ urlpatterns = [
     path("confirm-action/", views.confirm_action, name="confirm_action"),
 
     path("skill_form/", views.select_skills, name="skill_form"),
+
+    path('skills/', views.list_skills, name='skills'),
 ]
