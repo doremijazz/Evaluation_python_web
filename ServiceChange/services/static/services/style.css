@@ -1,0 +1,69 @@
+body {
+    margin: 0;
+}
+
+header {
+    background-color: darkblue;
+    padding: 15px 20px;
+}
+
+header nav {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+    background: gray;
+    border-radius : 5px;
+    padding: 10px 15px;
+}
+
+header a:hover {
+    text-decoration: underline;
+}
+
+.identifiant,
+.connexion {
+    margin-left: auto;
+}
+
+.deconnexion,
+.inscription {
+    margin-right: 20px;
+}
+
+.acceuil{
+    display: flex;
+    flex-direction: column;
+    background: gray;
+    color: white;
+    align-items: center;
+    justify-content: center;
+    height: auto;
+    width: 900px;
+    border-radius: 10px;
+}
+.message{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 15px;
+}
+
+.plannigTitle{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 15px;
+    text-align: center;
+}
+
+fieldset{
+    margin: 15px;
+}
