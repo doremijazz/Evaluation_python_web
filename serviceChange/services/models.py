@@ -51,16 +51,10 @@ class Request(models.Model):
             return True
 
     def __str__(self):
-        output = ""
-        if self.time_slots:
-            for t in self.time_slots.all():
-                output += ' | ' + str(t)
-        else:
-            "Aucun créneau"
-        to_print = ("Damnde" + self.pk + ", demandé par " + self.user.username + ", pour " + self.skill + " \n"
-                    + " Quand ? : " + output + " \n"
-                    + " Status: " + self.status)
-        return to_print
+        return (
+            f"Demande {self.pk}, demandée par "
+            f"{self.user.username}, pour {self.skill}"
+        )
 
 
 class Availability(models.Model):
@@ -81,3 +75,5 @@ class TimeSlot(models.Model):
 
     def belongs(self, start_time, end_time):
         return self.start_time <= start_time <= end_time <= self.end_time
+
+
