@@ -1,20 +1,26 @@
+
 {% extends "services/base.html" %}
 
 {% block main %}
+
+<h1>Proposer mes disponibilités</h1>
+
 <form method="post">
-        {% csrf_token %}
+    {% csrf_token %}
 
+    {{ form.management_form }}
 
-        {{ form.manage_form}}
-        {% for slot in form %}
+    {% for slot in form %}
         <fieldset>
             <legend>Créneau {{ forloop.counter }}</legend>
 
             {{ slot.as_p }}
         </fieldset>
-        </p>
-        {% endfor %}
-         <button type="submit" class="enregistrer">Enregistrer</button>
-    </form>
+    {% endfor %}
+
+    <button type="submit" class="enregistrer">
+        Enregistrer
+    </button>
+</form>
 
 {% endblock %}
