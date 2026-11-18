@@ -2,6 +2,7 @@
 
 {% block main %}
 <div class="message"><div class="acceuil"><h1>Bienvenue sur ServiceCahnge</h1><h1>Votre plateforme en ligne d'échange de service</h1></div></div>
+{% if user.is_authenticated %}
 <div class="plannigTitle"><h1>Planning des demande compatible avec mes disponibilitées</h1></div>
 
 
@@ -167,6 +168,11 @@ document.addEventListener("DOMContentLoaded", function () {
     calendar.render();
 });
 </script>
+
+{% endif %}
+{% else %}
+
+    <h1 class="message_login_required"><a href="{% url 'services:connexion' %}">Connectez-vous</a> pour consulter le planning des demandes compatible avec vos dispobinilitées.<br>Si vous n'avez pas encore de compte <a href="{% url 'services:inscription'%}">inscrivez vous</a><br> <a href="{% url 'services:planning' %} " class="message_to_planning">Sinon aller dans la page du planning générale</a></h1>
 
 {% endif %}
 {% endblock %}
