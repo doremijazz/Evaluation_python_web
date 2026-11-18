@@ -147,7 +147,7 @@ h1{
     color: white;
 }
 
-.skill_name, .category_name{
+.skill_name, .category_name, .message_login_required, .message_to_planning{
     text-align: center;
 }
 
