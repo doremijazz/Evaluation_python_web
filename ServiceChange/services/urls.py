@@ -20,4 +20,8 @@ urlpatterns = [
 
     # URL de déclaration de créneaux disponible
     path("availability/", views.is_available, name="availability"),
+
+    #URL des vue de planning
+    path("planning/", views.planning, name="planning"),
+    path("planning/events/", views.planning_events, name="planning_events"),
 ]
