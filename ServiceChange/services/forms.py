@@ -48,6 +48,19 @@ class RequestForm(ModelForm):
             "description": Textarea(attrs={"cols": 200, "rows": 5}),
         }
 
+class WeekForm(ModelForm):
+    class Meta:
+        model = TimeSlot
+        fields = ["start_time"]
+        widgets = {
+            "start_time": forms.DateInput(
+                attrs={
+                    "type": "date-local",
+                    "class": "form-control",
+                },
+                format="%Y-%m-%d"
+            )
+        }
 SlotFormSet = formset_factory(
     SlotForm,
     extra=5,
