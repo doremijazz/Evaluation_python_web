@@ -1,5 +1,7 @@
+import json
 from datetime import timedelta, datetime
 
+from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.utils import timezone
 from typing import Optional
@@ -7,14 +9,16 @@ from typing import Optional
 from django.contrib.auth import logout, login, authenticate
 from django.contrib.auth.views import PasswordChangeView
 from django.db import transaction
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.timezone import make_aware
 from django.views import generic
 from django.contrib.auth.forms import PasswordChangeForm
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 
-from .forms import InscriptionForm, RequestForm, SlotForm, SlotFormSet, WeekForm
-from .models import User, TimeSlot, Availability, Request
+from .forms import InscriptionForm, RequestForm, SlotForm, SlotFormSet, WeekForm, SkillForm
+from .models import User, TimeSlot, Availability, Request, Skill
 
 
 def connexion(request):
@@ -68,6 +72,13 @@ def do_request(request):
         form = RequestForm(request.POST)
         slot_form = SlotFormSet(request.POST)
 
+        print("Formulaire réservation valide :", form.is_valid())
+        print("Erreurs réservation :", form.errors)
+
+        print("Formulaire créneaux valide :", slot_form.is_valid())
+        print("Erreurs créneaux :", slot_form.errors)
+        print("Erreurs générales :", slot_form.non_form_errors())
+
         if form.is_valid() and slot_form.is_valid():
             with transaction.atomic():
                 request_data = form.save(commit=False)
@@ -75,11 +86,24 @@ def do_request(request):
                 request_data.status = "En attente"
                 request_data.save()
 
+                print("Réservation créée :", request_data.pk)
+
                 for slot in slot_form:
-                    if slot.cleaned_data:
+                    if slot.cleaned_data and not slot.cleaned_data.get("DELETE", False):
                         time_slot = slot.save(commit=False)
                         time_slot.save()
                         request_data.time_slots.add(time_slot)
+
+                        print(
+                            "Créneau créé :",
+                            time_slot.start_time,
+                            time_slot.end_time
+                        )
+
+                print(
+                    "Nombre de créneaux associés :",
+                    request_data.time_slots.count()
+                )
 
             return redirect("services:index")
 
@@ -116,63 +140,6 @@ def is_available(request):
 
     return render(request, "services/availability.html", {"form": form})
 
-def planning_test(request):
-    # Date de référence
-    today = timezone.localdate()
-
-    if request.method == "POST":
-        form = WeekForm(request.POST)
-
-        if form.is_valid():
-            selected_date = form.cleaned_data["start_time"]
-        else:
-            selected_date = today
-    else:
-        form = WeekForm()
-        selected_date = today
-
-    # Premier jour de la semaine : lundi
-    start_week = selected_date - timedelta(
-        days=selected_date.weekday()
-    )
-
-    # Dernier jour : dimanche
-    end_week = start_week + timedelta(days=6)
-
-    # Créneaux qui chevauchent la semaine
-    time_slots = TimeSlot.objects.filter(
-        start_time__date__lte=end_week,
-        end_time__date__gte=start_week,
-        requests__isnull=False
-    ).distinct().prefetch_related("requests")
-
-    # Organisation par jours
-    planning = {}
-
-    for i in range(7):
-        jour = start_week + timedelta(days=i)
-
-        planning[jour] = [
-            slot
-            for slot in time_slots
-            if (
-                    timezone.localtime(slot.start_time).date()
-                    <= jour
-                    <= timezone.localtime(slot.end_time).date()
-            )
-        ]
-
-    return render(
-        request,
-        "services/planning.html",
-        {
-            "planning": planning,
-            "form": form,
-            "start_week": start_week,
-            "end_week": end_week,
-        }
-    )
-
 def planning(request):
     return render(request, "services/planning.html")
 
@@ -187,7 +154,7 @@ def planning_events(request):
                 "title": reservation.skill.name,
                 "start": slot.start_time.isoformat(),
                 "end": slot.end_time.isoformat(),
-                "extendedProps": {"username" : reservation.user.username, "email" : reservation.user.email}
+                "extendedProps": {"username" : reservation.user.username, "email": reservation.user.email, "status": reservation.status, "reservationId": reservation.pk, "description": reservation.description},
             })
 
     return JsonResponse(events, safe=False)
@@ -197,3 +164,53 @@ class IndexView(generic.ListView):
     template_name = "services/index.html"
     context_object_name = "reservations"
 
+@login_required
+@require_POST
+def confirm_action(request):
+    try:
+        data = json.loads(request.body)
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse(
+            {"success": False, "error": "Données invalides"},
+            status=400
+        )
+
+    reservation = get_object_or_404(
+        Request,
+        pk=data.get("reservation_id")
+    )
+
+    # À adapter à tes règles d'autorisation :
+    # seuls les utilisateurs habilités peuvent confirmer.
+    if not request.user.is_staff:
+        return JsonResponse(
+            {"success": False, "error": "Accès refusé"},
+            status=403
+        )
+
+    reservation.status = "confirmed"
+    reservation.save(update_fields=["status"])
+
+    return JsonResponse({"success": True})
+
+@login_required
+def select_skills(request):
+    if request.method == "POST":
+        form = SkillForm(request.POST)
+
+        if form.is_valid():
+            skills = form.cleaned_data["skills"]
+
+            for skill in skills:
+                request.user.skills.add(skill)
+
+            return redirect("services:index")
+
+    else:
+        form = SkillForm()
+
+    return render(
+        request,
+        "services/skill_form.html",
+        {"form": form}
+    )
