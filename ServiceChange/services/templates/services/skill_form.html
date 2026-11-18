@@ -1,0 +1,15 @@
+{% extends "services/base.html" %}
+
+{% block main %}
+
+<h1>Mes compétences</h1>
+
+<form method="post">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <button type="submit">Enregistrer</button>
+</form>
+
+{% endblock %}
