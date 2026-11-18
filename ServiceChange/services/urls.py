@@ -26,4 +26,8 @@ urlpatterns = [
     path("planning/events/", views.planning_events, name="planning_events"),
 
     path("", views.IndexView.as_view(), name="index"),
+
+    path("confirm-action/", views.confirm_action, name="confirm_action"),
+
+    path("skill_form/", views.select_skills, name="skill_form"),
 ]
