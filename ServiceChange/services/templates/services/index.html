@@ -1,0 +1,115 @@
+{% extends "services/base.html" %}
+
+{% block main %}
+<div><h1>Bienvenue sur ServiceCahnge</h1><h1>Votre plateforme en ligne d'échange de service</h1></div>
+<h1>Planning des réservations</h1>
+
+<div id="calendar"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales/fr.global.min.js"></script>
+
+{% if user.is_authenticated %}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const calendar = new FullCalendar.Calendar(
+            document.getElementById("calendar"),
+            {
+                locale: "fr",
+                initialView: "timeGridWeek",
+                firstDay: 1,
+
+                slotMinTime: "07:00:00",
+                slotMaxTime: "22:00:00",
+                allDaySlot: false,
+
+                weekends: false,
+                headerToolbar: false,
+
+                events: "{% url 'services:planning_events' %}",
+
+                eventContent: function (info) {
+                    const container = document.createElement("div");
+
+                    const title = document.createElement("strong");
+                    title.textContent = info.event.title;
+
+                    const time = document.createElement("div");
+                    time.textContent = info.timeText;
+
+                    container.append(time, title);
+
+                    return {domNodes: [container]};
+                },
+
+                eventClick: function (info) {
+                    const date = info.event.start.toLocaleDateString("fr-FR", {
+                        weekday: "long",
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric"
+                    });
+
+                    const start = info.event.start.toLocaleTimeString("fr-FR", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    });
+
+                    const end = info.event.end?.toLocaleTimeString("fr-FR", {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }) || "Non renseignée";
+
+                    alert(
+                        "Réservation : " + info.event.title +
+                        "\nDate : " + date +
+                        "\nCréneaux : " + start + " - " + end +
+                        "\nUtilisateur : " +
+                        (info.event.extendedProps.username || "") + " / " +
+                        (info.event.extendedProps.email || "")
+                    );
+                }
+            }
+        );
+
+        calendar.render();
+    });
+    </script>
+
+{% else %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const calendar = new FullCalendar.Calendar(
+        document.getElementById("calendar"),
+        {
+            locale: "fr",
+            initialView: "timeGridWeek",
+            firstDay: 1,
+
+            slotMinTime: "07:00:00",
+            slotMaxTime: "22:00:00",
+            allDaySlot: false,
+
+            weekends: false,
+            headerToolbar: false,
+
+            events: "{% url 'services:planning_events' %}",
+
+            eventColor: "#3788d8",
+
+            eventDidMount: function(info) {
+                console.log("Réservation :", info.event.title);
+            }
+        }
+    );
+
+    calendar.render();
+});
+</script>
+
+{% endif %}
+{% endblock %}
