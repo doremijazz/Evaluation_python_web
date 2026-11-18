@@ -2,6 +2,7 @@ import json
 from datetime import timedelta, datetime
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import AbstractUser
 from django.http import JsonResponse
 from django.utils import timezone
 from typing import Optional
@@ -45,7 +46,7 @@ def register(request):
 
         if form.is_valid():
             form.save()
-            return redirect("login")
+            return redirect("connexion")
     else:
         form = InscriptionForm()
 
@@ -124,9 +125,11 @@ def is_available(request):
     if request.method == "POST":
         form = SlotFormSet(request.POST)
         if form.is_valid():
-            data : Optional[Availability] = None
-            data.user = request.user
-            data.skills = request.user.skills.all()
+            data = Availability.objects.create(
+                user=request.user
+            )
+            data.save()
+            data.skills.set(request.user.skills.all())
 
             for solt in form:
                 if solt.cleaned_data:
@@ -134,7 +137,7 @@ def is_available(request):
                     time_slot.save()
                     data.time_slots.add(time_slot)
 
-        return redirect("services:index")
+            return redirect("services:index")
     else:
         form = SlotFormSet()
 
@@ -143,21 +146,109 @@ def is_available(request):
 def planning(request):
     return render(request, "services/planning.html")
 
+
+from django.http import JsonResponse
+
 def planning_events(request):
     reservations = Request.objects.all()
+    availabilitys = Availability.objects.all()
 
     events = []
 
     for reservation in reservations:
         for slot in reservation.time_slots.all():
+
+            matching = False
+
+            if request.user.is_authenticated:
+
+                autre_utilisateur = reservation.user_id != request.user.id
+
+                competence = request.user.skills.filter(
+                    pk=reservation.skill_id
+                ).exists()
+
+                disponibilite = Availability.objects.filter(
+                    user=request.user,
+                    time_slots__start_time__lte=slot.start_time,
+                    time_slots__end_time__gte=slot.end_time
+                ).exists()
+
+                en_attente = reservation.status == "En attente"
+
+                matching = (
+                        autre_utilisateur
+                        and competence
+                        and disponibilite
+                        and en_attente
+                )
+
+                print(
+                    f"\nDemande {reservation.pk} : {reservation.skill.name}",
+                    f"\nAutre utilisateur : {autre_utilisateur}",
+                    f"\nCompétence possédée : {competence}",
+                    f"\nDisponibilité horaire : {disponibilite}",
+                    f"\nEn attente : {en_attente}",
+                    f"\nMATCHING : {matching}\n"
+                )
+
+            else:
+                matching = False
+
+            if reservation.status != "En attente":
+                color = "#FF0000"  # Rouge : demande traitée
+                text_color = "white"
+
+            elif matching:
+                color = "#87E990"  # Vert : demande compatible
+                text_color = "black"
+
+            else:
+                color = "#FD3F92"  # Rose : autre demande
+                text_color = "white"
+
             events.append({
                 "title": reservation.skill.name,
                 "start": slot.start_time.isoformat(),
                 "end": slot.end_time.isoformat(),
-                "extendedProps": {"username" : reservation.user.username, "email": reservation.user.email, "status": reservation.status, "reservationId": reservation.pk, "description": reservation.description},
+                "backgroundColor": color,
+                "borderColor": color,
+                "textColor": text_color,
+                "extendedProps": {
+                    "matching": matching,
+                    "type": "request",
+                    "username": reservation.user.username,
+                    "email": reservation.user.email,
+                    "status": reservation.status,
+                    "reservationId": reservation.pk,
+                    "slotId": slot.pk,
+                    "description": reservation.description,
+                },
+            })
+
+    for availability in availabilitys:
+        for slot in availability.time_slots.all():
+            events.append({
+                "title": availability.user.username,
+                "start": slot.start_time.isoformat(),
+                "end": slot.end_time.isoformat(),
+                "backgroundColor": "#25FDE9",
+                "borderColor": "#25FDE9",
+                "textColor": "black",
+                "extendedProps": {
+                    "type": "availability",
+                    "username": availability.user.username,
+                    "email": availability.user.email,
+                    "skills": list(
+                        availability.skills.values_list(
+                            "name", flat=True
+                        )
+                    ),
+                },
             })
 
     return JsonResponse(events, safe=False)
+
 
 class IndexView(generic.ListView):
     model = Request
@@ -214,3 +305,10 @@ def select_skills(request):
         "services/skill_form.html",
         {"form": form}
     )
+
+def list_skills(request):
+    skills = Skill.objects.all().order_by("category", "name")
+
+    return render(request, "services/skills.html", {
+        "skills": skills
+    })
