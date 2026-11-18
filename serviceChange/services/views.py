@@ -191,3 +191,9 @@ def planning_events(request):
             })
 
     return JsonResponse(events, safe=False)
+
+class IndexView(generic.ListView):
+    model = Request
+    template_name = "services/index.html"
+    context_object_name = "reservations"
+
