@@ -10,6 +10,7 @@
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales/fr.global.min.js"></script>
 
 <div class="calendar-filters">
+    <p>Filtres : </p>
     <button type="button" onclick="filterCalendar('all')">
         Tout afficher
     </button>
@@ -25,6 +26,14 @@
     <button type="button" onclick="filterCalendar('availability')">
         Disponibilités
     </button>
+</div>
+
+<div class="legende">
+    <p>Légende : </p>
+    <div class="Pourvu"><p>Pourvu</p></div>
+    <div class="EnAttente"><p>En attente</p></div>
+    <div class="Compatible"><p>Compatible</p></div>
+    <div class="Disponible"><p>Disponible</p></div>
 </div>
 
 <div id="calendar"></div>
