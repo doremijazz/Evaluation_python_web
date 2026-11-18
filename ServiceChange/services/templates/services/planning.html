@@ -4,14 +4,35 @@
 
 <h1>Planning des réservations</h1>
 
-<div id="calendar"></div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/locales/fr.global.min.js"></script>
 
+<div class="calendar-filters">
+    <button type="button" onclick="filterCalendar('all')">
+        Tout afficher
+    </button>
+
+     <button type="button" onclick="filterCalendar('matching')">
+        Demandes compatibles
+    </button>
+
+    <button type="button" onclick="filterCalendar('other')">
+        Autres demandes
+    </button>
+
+    <button type="button" onclick="filterCalendar('availability')">
+        Disponibilités
+    </button>
+</div>
+
+<div id="calendar"></div>
+
 {% if user.is_authenticated %}
     <script>
     document.addEventListener("DOMContentLoaded", function () {
+        let currentFilter = "all";
 
         const calendar = new FullCalendar.Calendar(
             document.getElementById("calendar"),
@@ -30,7 +51,37 @@
                     right: "dayGridMonth,timeGridWeek,timeGridDay"
                 },
 
-                events: "{% url 'services:planning_events' %}",
+                events: function(fetchInfo, successCallback, failureCallback) {
+    fetch("{% url 'services:planning_events' %}")
+        .then(response => response.json())
+        .then(data => {
+            const filtered = data.filter(event => {
+    const type = event.extendedProps.type;
+    const matching = event.extendedProps.matching;
+
+    if (currentFilter === "all") {
+        return true;
+    }
+
+                if (currentFilter === "availability") {
+                    return type === "availability";
+                }
+
+                if (currentFilter === "matching") {
+                    return type === "request" && matching === true;
+                }
+
+                if (currentFilter === "other") {
+                    return type === "request" && matching !== true;
+                }
+
+                return false;
+            });
+
+            successCallback(filtered);
+        })
+        .catch(failureCallback);
+},
 
                 eventContent: function (info) {
                     const container = document.createElement("div");
@@ -65,7 +116,7 @@
         hour: "2-digit",
         minute: "2-digit"
     }) || "Non renseignée";
-if (info.event.extendedProps.status === "En attente") {
+if (info.event.extendedProps.status === "En attente" && info.event.extendedProps.type === "request") {
     const userConfirmed = confirm(
         "Réservation : " + info.event.title +
         "\nDate : " + date +
@@ -104,6 +155,17 @@ if (info.event.extendedProps.status === "En attente") {
                 alert("Erreur lors de la confirmation.");
             });
     }
+} else if (info.event.extendedProps.type === "availability") {
+    alert(
+        "Disponibilité : " + info.event.title +
+        "\n\nCompétences : " +
+        (info.event.extendedProps.skills || []).join(", ") +
+        "\n\nDate : " + date +
+        "\nCréneau : " + start + " - " + end +
+        "\n\nUtilisateur : " +
+        (info.event.extendedProps.username || "") + " / " +
+        (info.event.extendedProps.email || "")
+    );
 }else{
     alert("Cette demande est déja pourvue")
 }
@@ -112,6 +174,10 @@ if (info.event.extendedProps.status === "En attente") {
         );
 
         calendar.render();
+        window.filterCalendar = function(type) {
+    currentFilter = type;
+    calendar.refetchEvents();
+};
     });
     </script>
 
