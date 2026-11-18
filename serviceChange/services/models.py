@@ -61,8 +61,12 @@ class Availability(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name="availability")
     time_slots = models.ManyToManyField('TimeSlot')
     skills = models.ManyToManyField('Skill')
+
     def is_available(self, time_slot):
-        return self.time_slots.filter(time_slot=time_slot).exists()
+        return self.time_slots.filter(
+            start_time__lte=time_slot.start_time,
+            end_time__gte=time_slot.end_time
+        )
 
     def __str__(self):
         return self.time_slots
